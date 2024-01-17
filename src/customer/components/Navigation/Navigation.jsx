@@ -16,6 +16,9 @@ import { Fragment, useState } from 'react'
 import { Dialog, Popover, Tab, Transition } from '@headlessui/react'
 import { Bars3Icon, MagnifyingGlassIcon, ShoppingBagIcon, XMarkIcon } from '@heroicons/react/24/outline'
 
+import { deepPurple } from '@mui/material/colors' 
+import { Avatar, Button, Menu, MenuItem } from '@mui/material'
+
 const navigation = {
   categories: [
     {
@@ -144,7 +147,29 @@ function classNames(...classes) {
 }
 
 export default function Navigation() {
-  const [open, setOpen] = useState(false)
+  const [open, setOpen] = useState(false);
+
+  const [openAuthModal,setOpenAuthModal]= useState(false);
+  const [anchorEl,setAnchorEl]=useState(null);
+  const openUserMenu = Boolean(anchorEl);
+  const jst = localStorage.getItem("jwt");
+
+  const handleUserClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handllCloseUserMenu = (event) => {
+    setAnchorEl(null);
+  };
+  const handleOpen = () => {
+    setOpenAuthModal(true);
+  };
+  const handleClose = () => {
+    setOpenAuthModal(false);
+  };
+  const handleCategoryClick = (category,section,item,close) => {
+    console.log(category,section,item);
+    close();
+  };
 
   return (
     <div className=" bg-white pb-10">
@@ -180,7 +205,6 @@ export default function Navigation() {
                     className="relative -m-2 inline-flex items-center justify-center rounded-md p-2 text-gray-400"
                     onClick={() => setOpen(false)}
                   >
-                    <span className="absolute -inset-0.5" />
                     <span className="sr-only">Close menu</span>
                     <XMarkIcon className="h-6 w-6" aria-hidden="true" />
                   </button>
@@ -196,7 +220,7 @@ export default function Navigation() {
                           className={({ selected }) =>
                             classNames(
                               selected ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-gray-900',
-                              'flex-1 whitespace-nowrap border-b-2 px-1 py-4 text-base font-medium'
+                              'flex-1 whitespace-nowrap border-b-2 px-1 py-4 text-base font-medium border-none'
                             )
                           }
                         >
@@ -265,24 +289,13 @@ export default function Navigation() {
                       Sign in
                     </a>
                   </div>
-                  <div className="flow-root">
+                  {/* <div className="flow-root">
                     <a href="#" className="-m-2 block p-2 font-medium text-gray-900">
                       Create account
                     </a>
-                  </div>
+                  </div> */}
                 </div>
 
-                <div className="border-t border-gray-200 px-4 py-6">
-                  <a href="#" className="-m-2 flex items-center p-2">
-                    <img
-                      src="https://tailwindui.com/img/flags/flag-canada.svg"
-                      alt=""
-                      className="block h-auto w-5 flex-shrink-0"
-                    />
-                    <span className="ml-3 block text-base font-medium text-gray-900">CAD</span>
-                    <span className="sr-only">, change currency</span>
-                  </a>
-                </div>
               </Dialog.Panel>
             </Transition.Child>
           </div>
@@ -302,7 +315,6 @@ export default function Navigation() {
                 className="relative rounded-md bg-white p-2 text-gray-400 lg:hidden"
                 onClick={() => setOpen(true)}
               >
-                <span className="absolute -inset-0.5" />
                 <span className="sr-only">Open menu</span>
                 <Bars3Icon className="h-6 w-6" aria-hidden="true" />
               </button>
@@ -320,11 +332,11 @@ export default function Navigation() {
               </div>
 
               {/* Flyout menus */}
-              <Popover.Group className="hidden lg:ml-8 lg:block lg:self-stretch">
+              <Popover.Group className="hidden lg:ml-8 lg:block lg:self-stretch z-10">
                 <div className="flex h-full space-x-8">
                   {navigation.categories.map((category) => (
                     <Popover key={category.name} className="flex">
-                      {({ open }) => (
+                      {({ open,close }) => (
                         <>
                           <div className="relative flex">
                             <Popover.Button
@@ -388,9 +400,14 @@ export default function Navigation() {
                                           >
                                             {section.items.map((item) => (
                                               <li key={item.name} className="flex">
-                                                <a href={item.href} className="hover:text-gray-800">
+                                                <p onClick={() => handleCategoryClick(
+                                                  category,
+                                                  section,
+                                                  item,
+                                                  close
+                                                )} className="cursor-pointer hover:text-gray-800">
                                                   {item.name}
-                                                </a>
+                                                </p>
                                               </li>
                                             ))}
                                           </ul>
@@ -421,45 +438,87 @@ export default function Navigation() {
 
               <div className="ml-auto flex items-center">
                 <div className="hidden lg:flex lg:flex-1 lg:items-center lg:justify-end lg:space-x-6">
-                  <a href="#" className="text-sm font-medium text-gray-700 hover:text-gray-800">
+                {
+                  true ? (
+                    <div>
+                      <Avatar
+                        className='text-white'
+                        onClick={handleUserClick}
+                        aria-controls={open ? "basic-menu" : undefined }
+                        aria-haspopup="true"
+                        aria-aria-expanded={open ? "true" : undefined}
+                        sx={{ bgcolor: deepPurple[500],
+                        color:"white",
+                        cursor:"pointer"
+                        
+                         }}>
+                          S
+                         </Avatar>
+                         <Menu
+                          id="basic-menu"
+                          anchorEl={anchorEl}
+                          open={openUserMenu}
+                          onClose={handllCloseUserMenu}
+                          MenuListProps={{
+                            'aria-labelledby': 'basic-button',
+                          }}
+                        >
+                          <MenuItem onClick={handllCloseUserMenu}>Profile</MenuItem>
+                          <MenuItem onClick={handllCloseUserMenu}>My Orders</MenuItem>
+                          <MenuItem onClick={handllCloseUserMenu}>Logout</MenuItem>
+                        </Menu>
+                    </div>
+                  ) : (
+                    
+                      <Button
+                  
+                        className="text-sm font-medium text-gray-700 hover:text-gray-800"
+                        onClick={handleOpen}
+                      >
+                        Sign in
+                      </Button>
+                      )}
+                      </div>
+                      {/* <Button
+                    
+                        className="ml-4 py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-500"
+                        onClick={handleOpen}
+                      >
+                        Create account
+                      </Button> */}
+                    
+                  
+            
+
+                  {/* <a href="#" className="text-sm font-medium text-gray-700 hover:text-gray-800">
                     Sign in
                   </a>
                   <span className="h-6 w-px bg-gray-200" aria-hidden="true" />
                   <a href="#" className="text-sm font-medium text-gray-700 hover:text-gray-800">
                     Create account
-                  </a>
-                </div>
+                  </a> */}
+                
 
-                <div className="hidden lg:ml-8 lg:flex">
-                  <a href="#" className="flex items-center text-gray-700 hover:text-gray-800">
-                    <img
-                      src="https://tailwindui.com/img/flags/flag-canada.svg"
-                      alt=""
-                      className="block h-auto w-5 flex-shrink-0"
-                    />
-                    <span className="ml-3 block text-sm font-medium">CAD</span>
-                    <span className="sr-only">, change currency</span>
-                  </a>
-                </div>
+               
 
                 {/* Search */}
                 <div className="flex lg:ml-6">
-                  <a href="#" className="p-2 text-gray-400 hover:text-gray-500">
+                  <p  className="p-2 text-gray-400 hover:text-gray-500">
                     <span className="sr-only">Search</span>
                     <MagnifyingGlassIcon className="h-6 w-6" aria-hidden="true" />
-                  </a>
+                  </p>
                 </div>
 
                 {/* Cart */}
                 <div className="ml-4 flow-root lg:ml-6">
-                  <a href="#" className="group -m-2 flex items-center p-2">
+                  <Button className="group -m-2 flex items-center p-2">
                     <ShoppingBagIcon
                       className="h-6 w-6 flex-shrink-0 text-gray-400 group-hover:text-gray-500"
                       aria-hidden="true"
                     />
-                    <span className="ml-2 text-sm font-medium text-gray-700 group-hover:text-gray-800">0</span>
+                    <span className="ml-2 text-sm font-medium text-gray-700 group-hover:text-gray-800">2</span>
                     <span className="sr-only">items in cart, view bag</span>
-                  </a>
+                  </Button>
                 </div>
               </div>
             </div>
@@ -467,5 +526,5 @@ export default function Navigation() {
         </nav>
       </header>
     </div>
-  )
+  );
 }
