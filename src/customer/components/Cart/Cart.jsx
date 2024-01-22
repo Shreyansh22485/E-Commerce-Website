@@ -1,7 +1,12 @@
 import React from "react";
 import CartItem from "./CartItem";
+import { useNavigate } from "react-router-dom";
 
 const Cart = () => {
+  const navigate= useNavigate();
+  const handleOrder=()=>{
+    navigate("/checkout?step=2")
+  }
   return (
     <div>
       <div className="lg:grid grid-cols-3 lg:px-16 relative gap-10 ">
@@ -29,7 +34,7 @@ const Cart = () => {
                 <p className="text-gray-500">₹1999</p>
               </div>
               <div className="mt-5">
-                <button className="w-full bg-yellow-500 text-white font-semibold py-2 rounded-md">
+                <button onClick={handleOrder} className="w-full bg-yellow-500 text-white font-semibold py-2 rounded-md">
                   Place Order
                 </button>
               </div>
